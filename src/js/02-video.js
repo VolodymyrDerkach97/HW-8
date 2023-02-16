@@ -6,25 +6,28 @@ const iframe = document.querySelector('#vimeo-player');
 const player = new Player(iframe);
 
 const STOREGE_KEY = 'videoplayer-current-time';
+let localStorageObj = {};
 
-const setLocalStorage = e =>
-  localStorage.setItem(STOREGE_KEY, JSON.stringify(e));
+try {
+  localStorageObj = JSON.parse(localStorage.getItem(STOREGE_KEY));
+} catch (error) {
+  console.log(error.name);
+  console.log(error.message);
+}
 
 player.on('timeupdate', throttle(setLocalStorage, 1000));
 
-function createlocalStorageObj() {
-  const localStorageObj = JSON.parse(
-    localStorage.getItem(STOREGE_KEY)
-  );
-  if (localStorageObj) {
-    return localStorageObj;
-  }
+if (localStorageObj) {
+  player.setCurrentTime(localStorageObj.seconds).catch(function (error) {
+    switch (error.name) {
+      case 'RangeError':
+        break;
+      default:
+        break;
+    }
+  });
 }
-player.setCurrentTime(createlocalStorageObj().seconds).catch(function (error) {
-  switch (error.name) {
-    case 'RangeError':
-      break;
-    default:
-      break;
-  }
-});
+
+function setLocalStorage(e) {
+  localStorage.setItem(STOREGE_KEY, JSON.stringify(e));
+}
