@@ -2,6 +2,7 @@ const throttle = require('lodash.throttle');
 
 const form = document.querySelector('.feedback-form');
 const formData = {};
+const result = {};
 const STORAGE_KEY = 'feedback-form-state';
 populateInput();
 
@@ -11,8 +12,8 @@ form.addEventListener('submit', onSubmit);
 function populateInput() {
   const saveValue = JSON.parse(localStorage.getItem(STORAGE_KEY));
   if (saveValue) {
-    form.message.value = saveValue.message || '';
-    form.email.value = saveValue.email || '';
+    form.elements.namedItem('message').value = saveValue.message || '';
+    form.elements.namedItem('email').value = saveValue.email || '';
   }
 }
 
@@ -22,7 +23,12 @@ function onSetLocalStorage(e) {
 
   formData[name] = value;
 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+  } catch (error) {
+    console.log(error.name);
+    console.log(error.message);
+  }
 }
 
 function onSubmit(e) {
@@ -36,8 +42,11 @@ function onSubmit(e) {
   if (!email || !message) {
     alert('Всі поля повинні бути заповнені');
   } else {
-    console.log(formData);
-    e.currentTarget.reset();
-    localStorage.removeItem(STORAGE_KEY);
+    result['email'] = email;
+    result['message'] = message;
   }
+
+  console.log(result);
+  e.currentTarget.reset();
+  localStorage.removeItem(STORAGE_KEY);
 }
